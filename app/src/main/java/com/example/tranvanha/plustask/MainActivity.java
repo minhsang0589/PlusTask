@@ -1,5 +1,6 @@
 package com.example.tranvanha.plustask;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -14,15 +15,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class MainActivity extends AppCompatActivity {
-private EditText edt1;
-private EditText edt2;
-private Button btnplus,btndownload;
-private TextView tvketqua;
-private int a,b;
-private ImageView imv;
+    private EditText edt1;
+    private EditText edt2;
+    private Button btnplus, btndownload;
+    private TextView tvketqua;
+    private int a, b;
+    private ImageView imv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,19 +38,20 @@ private ImageView imv;
         btnplus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TextUtils.isEmpty(edt1.getText().toString()) && !TextUtils.isEmpty(edt2.getText().toString())){
+                if (!TextUtils.isEmpty(edt1.getText().toString()) && !TextUtils.isEmpty(edt2.getText().toString())) {
                     a = Integer.parseInt(edt1.getText().toString());
-                b = Integer.parseInt(edt2.getText().toString());
-                new PlusTask().execute(a, b);
-            }
-            else Toast.makeText(MainActivity.this, "Vui long nhap vao 2 so", Toast.LENGTH_SHORT).show();
+                    b = Integer.parseInt(edt2.getText().toString());
+                    new PlusTask().execute(a, b);
+                } else
+                    Toast.makeText(MainActivity.this, "Vui long nhap vao 2 so", Toast.LENGTH_SHORT).show();
             }
         });
 
         btndownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new TaiAnhVeAndroid().execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+                DownloadImageTask down = new DownloadImageTask();
+                down.execute("https://hinhanhdephd.com/wp-content/uploads/2016/01/hinh-anh-thien-nhien-dep-lam-hinh-nen-laptop-14.jpg");
             }
         });
 
@@ -51,53 +59,59 @@ private ImageView imv;
     }
 
     private void initview() {
-        edt1=(EditText)findViewById(R.id.edt_1);
-        edt2=(EditText)findViewById(R.id.edt_2);
-        btnplus=(Button) findViewById(R.id.btn_plus);
-        btndownload=(Button) findViewById(R.id.btn_download);
-        tvketqua=(TextView) findViewById(R.id.tv_ketqua);
-        imv=(ImageView) findViewById(R.id.imv);
+        edt1 = (EditText) findViewById(R.id.edt_1);
+        edt2 = (EditText) findViewById(R.id.edt_2);
+        btnplus = (Button) findViewById(R.id.btn_plus);
+        btndownload = (Button) findViewById(R.id.btn_download);
+        tvketqua = (TextView) findViewById(R.id.tv_ketqua);
+        imv = (ImageView) findViewById(R.id.imv);
 
 
     }
 
-    class PlusTask extends AsyncTask<Integer,Void,Integer>{
-
-
-    @Override
-    protected Integer doInBackground(Integer... input) {
-        int So1= input[0];
-        int So2=input[1];
-        int Tong=So1+So2;
-        return Tong;
-    }
-
-    @Override
-    protected void onPostExecute(Integer Tong) {
-        super.onPostExecute(Tong);
-        tvketqua.setText(Tong+"");
-        Toast.makeText(MainActivity.this, Tong+"", Toast.LENGTH_SHORT).show();
-    }
-}
-class TaiAnhVeAndroid extends AsyncTask<String,Void,Bitmap>{
-
-    @Override
-    protected Bitmap doInBackground(String... urls) {
-        String urldisplay = urls[0];
-        Bitmap mIcon11 = null;
-        try {
-            InputStream in = new java.net.URL(urldisplay).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
-        } catch (Exception e) {
-            Log.e("Error", e.getMessage());
-            e.printStackTrace();
+    private class PlusTask extends AsyncTask<Integer, Void, Integer> {
+        @Override
+        protected Integer doInBackground(Integer... input) {
+            int So1 = input[0];
+            int So2 = input[1];
+            int Tong = So1 + So2;
+            return Tong;
         }
-        return mIcon11;
+
+        @Override
+        protected void onPostExecute(Integer Tong1) {
+            super.onPostExecute(Tong1);
+            tvketqua.setText(Tong1 + "");
+            Toast.makeText(MainActivity.this, Tong1 + "", Toast.LENGTH_SHORT).show();
+        }
     }
-    protected void onPostExecute(Bitmap result) {
-        imv.setImageBitmap(result);
-    } }
-    //lam tiếp tải ảnh về đặt làm backgroud cho image view;
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            Bitmap bm = null;
+            try {
+                Log.e("error","ok");
+                URL url = new URL(urls[0]);
+                InputStream in = url.openConnection().getInputStream();
+                bm = BitmapFactory.decodeStream(in);
+            } catch (MalformedURLException e) {
+                Log.e("error","e");
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("error","e1"+e.getMessage());
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            imv.setImageBitmap(bitmap);
+        }
+    }
 
 }
+
 
